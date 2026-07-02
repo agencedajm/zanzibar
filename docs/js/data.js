@@ -439,6 +439,73 @@ const CHECKLIST = [
   }
 ];
 
+// Activités & excursions, triables par zone, avec CTA de comparaison/réservation
+const ACTIVITIES = [
+  {
+    name: "Spice Tour",
+    zone: "Stone Town",
+    icon: "wave",
+    description: "Visite d'une plantation d'épices, dégustation, explications sur girofle/vanille/poivre. Demi-journée.",
+    duration: "~3h",
+    price: "15 – 25 €/pers",
+    ctaUrl: "https://www.getyourguide.com/s/?q=zanzibar+spice+tour"
+  },
+  {
+    name: "Visite guidée de Stone Town",
+    zone: "Stone Town",
+    icon: "building",
+    description: "Vieille ville swahilie classée UNESCO, marché de Darajani, ancien marché aux esclaves.",
+    duration: "~3h",
+    price: "20 – 30 €/pers",
+    ctaUrl: "https://www.getyourguide.com/s/?q=stone+town+walking+tour"
+  },
+  {
+    name: "Prison Island (Changuu)",
+    zone: "Nungwi / Kendwa",
+    icon: "wave",
+    description: "Bateau depuis Stone Town, tortues géantes centenaires, snorkeling léger sur le trajet.",
+    duration: "Demi-journée",
+    price: "35 – 50 €/pers",
+    ctaUrl: "https://www.getyourguide.com/s/?q=prison+island+zanzibar"
+  },
+  {
+    name: "Safari Blue",
+    zone: "Nungwi / Kendwa",
+    icon: "wave",
+    description: "Excursion bateau dhow journée complète : mangroves, banc de sable, snorkeling, BBQ fruits de mer/homard (option viande sur demande).",
+    duration: "Journée complète",
+    price: "70 – 85 €/pers",
+    ctaUrl: "https://www.getyourguide.com/s/?q=safari+blue+zanzibar"
+  },
+  {
+    name: "Snorkeling Mnemba Island",
+    zone: "Matemwe / Pwani Mchangani",
+    icon: "wave",
+    description: "Le meilleur spot de snorkeling de Zanzibar, eaux cristallines, tortues et poissons tropicaux.",
+    duration: "Demi-journée",
+    price: "55 – 70 €/pers",
+    ctaUrl: "https://www.getyourguide.com/s/?q=mnemba+island+snorkeling"
+  },
+  {
+    name: "Jozani Forest",
+    zone: "Matemwe / Pwani Mchangani",
+    icon: "building",
+    description: "Seule forêt protégée de Zanzibar : singes colobes rouges endémiques, mangrove sur ponton en bois.",
+    duration: "~2h30",
+    price: "20 – 30 €/pers",
+    ctaUrl: "https://www.getyourguide.com/s/?q=jozani+forest+zanzibar"
+  },
+  {
+    name: "Sortie dauphins à Kizimkazi",
+    zone: "Matemwe / Pwani Mchangani",
+    icon: "wave",
+    description: "Observation (et parfois baignade encadrée) avec les dauphins au large de Kizimkazi, au sud de l'île.",
+    duration: "Demi-journée",
+    price: "35 – 45 €/pers",
+    ctaUrl: "https://www.getyourguide.com/s/?q=kizimkazi+dolphin+tour"
+  }
+];
+
 // Coordonnées géographiques réelles (lat, lng) pour la carte interactive
 const MAP_POINTS = [
   { name: "Aéroport de Zanzibar (ZNZ)", coords: [-6.2220, 39.2249], type: "airport" },
