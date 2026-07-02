@@ -48,7 +48,7 @@
   }
 
   // ---------- Navigation par onglets ----------
-  function activateTab(tabId) {
+  function activateTab(tabId, subTabId) {
     const buttons = document.querySelectorAll(".tab-btn");
     const panels = document.querySelectorAll(".tab-panel");
     buttons.forEach((b) => b.classList.toggle("active", b.dataset.tab === tabId));
@@ -58,6 +58,7 @@
     if (tabId === "carte" && leafletMapInstance) {
       setTimeout(() => leafletMapInstance.invalidateSize(), 80);
     }
+    if (subTabId) activateSubtab(subTabId);
   }
 
   function initTabs() {
@@ -69,7 +70,19 @@
 
   function initGotoButtons() {
     document.querySelectorAll("[data-goto]").forEach((el) => {
-      el.addEventListener("click", () => activateTab(el.dataset.goto));
+      el.addEventListener("click", () => activateTab(el.dataset.goto, el.dataset.subgoto));
+    });
+  }
+
+  // ---------- Sous-onglets (ex: Checklist / Infos dans le même onglet) ----------
+  function activateSubtab(subTabId) {
+    document.querySelectorAll(".subtab-btn").forEach((b) => b.classList.toggle("active", b.dataset.subtab === subTabId));
+    document.querySelectorAll(".subtab-panel").forEach((p) => p.classList.toggle("active", p.id === "prep-" + subTabId));
+  }
+
+  function initSubtabs() {
+    document.querySelectorAll(".subtab-btn").forEach((b) => {
+      b.addEventListener("click", () => activateSubtab(b.dataset.subtab));
     });
   }
 
@@ -193,7 +206,7 @@
           <span class="day-date">${fmtDateShort(d.date)}</span>
           <span class="day-location">${d.location}</span>
         </span>
-        <span class="day-budget">${d.budget > 0 ? "≈ " + euro(d.budget) + "/pers" : ""}</span>
+        <span class="day-budget">${d.budget > 0 ? euro(d.budget) + " /pers<br><small>sur place</small>" : ""}</span>
         <span class="day-chevron">${icon("chevron")}</span>
       </button>
       <div class="day-body">
@@ -215,26 +228,37 @@
 
   // ---------- Budget ----------
   function initBudget() {
-    const tbody = document.getElementById("budget-tbody");
+    const list = document.getElementById("budget-list");
     const spent = store.get("budgetSpent", {});
 
-    tbody.innerHTML = BUDGET_CATEGORIES.map((c) => {
+    list.innerHTML = BUDGET_CATEGORIES.map((c) => {
       const val = spent[c.key] ?? "";
       return `
-      <tr data-key="${c.key}">
-        <td>
+      <div class="budget-row" data-key="${c.key}">
+        <div class="budget-row-label">
           <div class="budget-label">${c.label}</div>
           <div class="budget-detail">${c.detail}</div>
-        </td>
-        <td class="num">${euro(c.planned)}</td>
-        <td class="num">
-          <input type="number" min="0" step="1" class="spent-input" data-key="${c.key}" value="${val}" placeholder="0" /> €
-        </td>
-        <td class="num diff-cell">—</td>
-      </tr>`;
+        </div>
+        <div class="budget-row-stats">
+          <div class="budget-stat">
+            <span class="budget-stat-label">Prévu</span>
+            <span class="budget-stat-value">${euro(c.planned)}</span>
+          </div>
+          <div class="budget-stat">
+            <span class="budget-stat-label">Dépensé</span>
+            <span class="budget-stat-value budget-stat-input">
+              <input type="number" min="0" step="1" class="spent-input" data-key="${c.key}" value="${val}" placeholder="0" /> €
+            </span>
+          </div>
+          <div class="budget-stat">
+            <span class="budget-stat-label">Écart</span>
+            <span class="budget-stat-value diff-cell">—</span>
+          </div>
+        </div>
+      </div>`;
     }).join("");
 
-    tbody.querySelectorAll(".spent-input").forEach((input) => {
+    list.querySelectorAll(".spent-input").forEach((input) => {
       input.addEventListener("change", () => {
         const s = store.get("budgetSpent", {});
         s[input.dataset.key] = input.value === "" ? null : Number(input.value);
@@ -256,7 +280,7 @@
     BUDGET_CATEGORIES.forEach((c) => {
       totalPlanned += c.planned;
       const s = spent[c.key];
-      const row = document.querySelector(`#budget-tbody tr[data-key="${c.key}"]`);
+      const row = document.querySelector(`.budget-row[data-key="${c.key}"]`);
       const diffCell = row ? row.querySelector(".diff-cell") : null;
       if (s !== null && s !== undefined && !Number.isNaN(s)) {
         anySpent = true;
@@ -273,8 +297,8 @@
       }
     });
 
-    document.getElementById("budget-total-planned").textContent = euro(totalPlanned);
-    document.getElementById("budget-total-spent").textContent = anySpent ? euro(totalSpent) : "—";
+    document.getElementById("budget-total-planned").textContent = euro(totalPlanned) + " prévu";
+    document.getElementById("budget-total-spent").textContent = anySpent ? "· " + euro(totalSpent) + " dépensé" : "";
     document.getElementById("budget-ceiling").textContent = euro(TRIP_INFO.budgetPerPerson);
 
     const margin = TRIP_INFO.budgetPerPerson - totalPlanned;
@@ -308,6 +332,46 @@
         store.set("budgetSpent", {});
         initBudget();
       }
+    });
+  }
+
+  // ---------- Activités & excursions ----------
+  function initActivities() {
+    const listEl = document.getElementById("activities-list");
+    const filtersEl = document.getElementById("activity-filters");
+    if (!listEl || !filtersEl) return;
+
+    function renderCard(a, i) {
+      const tileClass = "c" + ((i % 3) + 1);
+      return `
+      <div class="flight-card activity-card" data-zone="${a.zone}">
+        <h4 class="card-title"><span class="icon-tile ${tileClass}">${icon(a.icon)}</span>${a.name}</h4>
+        <p class="pick-label">${a.zone}</p>
+        <p>${a.description}</p>
+        <p>Durée : ${a.duration}</p>
+        <p class="price">${a.price}</p>
+        <a class="cta-btn primary block" href="${a.ctaUrl}" target="_blank" rel="noopener">
+          ${icon("compass")} Comparer &amp; réserver
+        </a>
+      </div>`;
+    }
+
+    listEl.innerHTML = ACTIVITIES.map(renderCard).join("");
+
+    const zones = ["Toutes", ...new Set(ACTIVITIES.map((a) => a.zone))];
+    filtersEl.innerHTML = zones
+      .map((z, i) => `<button class="zone-chip${i === 0 ? " active" : ""}" data-zone="${z}" type="button">${z}</button>`)
+      .join("");
+
+    filtersEl.querySelectorAll(".zone-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        filtersEl.querySelectorAll(".zone-chip").forEach((c) => c.classList.remove("active"));
+        chip.classList.add("active");
+        const zone = chip.dataset.zone;
+        listEl.querySelectorAll(".activity-card").forEach((card) => {
+          card.classList.toggle("filtered-out", !(zone === "Toutes" || card.dataset.zone === zone));
+        });
+      });
     });
   }
 
@@ -514,7 +578,13 @@
       maxZoom: 17
     }).addTo(map);
 
-    const bounds = [];
+    // On inclut deux points couvrant l'île entière (nord et sud) pour que
+    // la vue montre toujours tout Unguja, pas seulement un zoom serré sur
+    // les marqueurs (qui sont tous côté nord/est).
+    const bounds = [
+      [-6.48, 39.15], // pointe sud de l'île
+      [-5.7, 39.55]   // pointe nord-est de l'île
+    ];
     MAP_POINTS.forEach((p) => {
       const color = colors[p.type] || colors.activity;
       const radius = p.type === "stage" ? 10 : 7;
@@ -529,7 +599,7 @@
         .bindPopup(`<strong>${p.name}</strong>`);
       bounds.push(p.coords);
     });
-    map.fitBounds(bounds, { padding: [28, 28] });
+    map.fitBounds(bounds, { padding: [20, 20] });
     leafletMapInstance = map;
 
     const legend = document.getElementById("map-legend");
@@ -542,8 +612,10 @@
   document.addEventListener("DOMContentLoaded", () => {
     initTabs();
     initGotoButtons();
+    initSubtabs();
     initHome();
     initItinerary();
+    initActivities();
     initBudget();
     initBudgetReset();
     initStay();
