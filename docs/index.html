@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -97,16 +98,28 @@
       </div>
       <h3 class="section-label">Étapes du séjour</h3>
       <div class="stage-chips" id="home-stages"></div>
+      <p class="nights-note" id="home-nights-note"></p>
       <h3 class="section-label">Pourquoi mi-septembre ?</h3>
       <p class="why-box" id="home-why"></p>
+      <div class="cta-row">
+        <button class="cta-btn primary" data-goto="sejour">
+          <svg class="icon"><use href="#i-plane"/></svg> Voir les vols &amp; réserver
+        </button>
+        <button class="cta-btn" data-goto="itineraire">
+          <svg class="icon"><use href="#i-calendar"/></svg> Voir l'itinéraire détaillé
+        </button>
+        <button class="cta-btn" data-goto="checklist">
+          <svg class="icon"><use href="#i-check-circle"/></svg> Préparer mes documents
+        </button>
+      </div>
     </div>
   </section>
 
   <!-- ITINERAIRE -->
   <section id="itineraire" class="tab-panel">
     <h2>Itinéraire jour par jour</h2>
-    <p class="panel-intro">Touchez un jour pour dérouler le détail. Vos notes sont sauvegardées automatiquement sur cet appareil.</p>
-    <div class="filter-chips" id="itinerary-filters"></div>
+    <p class="panel-intro">Choisissez un moment du voyage ci-dessous pour voir uniquement ces jours-là. Touchez un jour pour dérouler le détail.</p>
+    <div class="journey-stepper" id="journey-stepper"></div>
     <div id="itinerary-list"></div>
   </section>
 
@@ -116,6 +129,7 @@
     <div class="budget-bar-wrap">
       <div class="budget-bar-fill" id="budget-bar-fill"></div>
       <div class="budget-bar-spent" id="budget-bar-spent"></div>
+      <span class="budget-bar-label" id="budget-bar-label"></span>
     </div>
     <div class="budget-legend">
       <span class="legend-planned">Prévisionnel</span>
@@ -150,10 +164,15 @@
   <!-- VOLS & HEBERGEMENTS -->
   <section id="sejour" class="tab-panel">
     <h2>Vols Paris → Zanzibar</h2>
+    <p class="panel-intro">Prix indicatifs — comparez et réservez sur les sites de recherche de vols.</p>
     <div class="cards-grid" id="flights-list"></div>
 
-    <h2>Hébergements par étape</h2>
-    <div class="cards-grid" id="accommodations-list"></div>
+    <div class="section-header-row">
+      <h2>Hébergements par étape</h2>
+      <button class="link-btn" data-goto="carte"><svg class="icon"><use href="#i-map"/></svg> Voir sur la carte</button>
+    </div>
+    <p class="panel-intro">3 profils par étape : le choix guide de voyage, une adresse locale, une option plus aventure.</p>
+    <div id="accommodations-list"></div>
   </section>
 
   <!-- CHECKLIST -->
@@ -172,11 +191,9 @@
   <!-- CARTE -->
   <section id="carte" class="tab-panel">
     <h2>Carte du séjour</h2>
+    <p class="panel-intro">Carte réelle de Zanzibar avec les étapes du séjour et les excursions.</p>
     <div class="map-wrap">
-      <svg id="map-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 2 C 60 4, 66 14, 64 26 C 70 32, 74 40, 70 50 C 74 58, 68 66, 66 74 C 64 84, 58 92, 48 96 C 40 94, 36 86, 38 76 C 32 70, 30 60, 34 52 C 28 46, 28 36, 34 30 C 32 20, 38 8, 50 2 Z"
-              fill="#f5f5f7" stroke="#1a1d1f" stroke-width="0.5" />
-      </svg>
+      <div id="leaflet-map"></div>
       <ul id="map-legend"></ul>
     </div>
   </section>
@@ -187,6 +204,7 @@
   Carnet de voyage personnel — Zanzibar, du 12 au 26 septembre 2026. Toutes les données (notes, checklist, budget) sont enregistrées uniquement sur cet appareil.
 </footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
 </body>
