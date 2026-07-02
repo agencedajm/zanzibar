@@ -30,18 +30,47 @@
   const euro = (n) => n.toLocaleString("fr-FR") + " €";
   const icon = (id, extraClass) => `<svg class="icon${extraClass ? " " + extraClass : ""}"><use href="#i-${id}"/></svg>`;
 
+  let leafletMapInstance = null;
+
+  // ---------- Toast (micro-interaction de confirmation) ----------
+  let toastEl = null;
+  let toastTimer = null;
+  function showToast(message) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.id = "toast";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = message;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+  }
+
   // ---------- Navigation par onglets ----------
-  function initTabs() {
+  function activateTab(tabId) {
     const buttons = document.querySelectorAll(".tab-btn");
     const panels = document.querySelectorAll(".tab-panel");
-    function activate(tabId) {
-      buttons.forEach((b) => b.classList.toggle("active", b.dataset.tab === tabId));
-      panels.forEach((p) => p.classList.toggle("active", p.id === tabId));
-      store.set("activeTab", tabId);
-      window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+    buttons.forEach((b) => b.classList.toggle("active", b.dataset.tab === tabId));
+    panels.forEach((p) => p.classList.toggle("active", p.id === tabId));
+    store.set("activeTab", tabId);
+    window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+    if (tabId === "carte" && leafletMapInstance) {
+      setTimeout(() => leafletMapInstance.invalidateSize(), 80);
     }
-    buttons.forEach((b) => b.addEventListener("click", () => activate(b.dataset.tab)));
-    activate(store.get("activeTab", "accueil"));
+  }
+
+  function initTabs() {
+    document.querySelectorAll(".tab-btn").forEach((b) => {
+      b.addEventListener("click", () => activateTab(b.dataset.tab));
+    });
+    activateTab(store.get("activeTab", "accueil"));
+  }
+
+  function initGotoButtons() {
+    document.querySelectorAll("[data-goto]").forEach((el) => {
+      el.addEventListener("click", () => activateTab(el.dataset.goto));
+    });
   }
 
   // ---------- Accueil : compte à rebours + résumé ----------
@@ -55,6 +84,8 @@
     document.getElementById("home-budget").textContent =
       euro(TRIP_INFO.budgetPerPerson) + " / pers. (" + euro(TRIP_INFO.budgetCouple) + " au total)";
     document.getElementById("home-why").textContent = TRIP_INFO.whySeptember;
+    const nightsNoteEl = document.getElementById("home-nights-note");
+    if (nightsNoteEl) nightsNoteEl.textContent = TRIP_INFO.nightsNote || "";
 
     const stagesEl = document.getElementById("home-stages");
     stagesEl.innerHTML = TRIP_INFO.stages
@@ -76,7 +107,7 @@
     const end = new Date(TRIP_INFO.endDate + "T23:59:59");
     if (now < start) {
       const days = Math.ceil((start - now) / 86400000);
-      el.innerHTML = `<span class="countdown-number">${days}</span><span class="countdown-label">jour${days > 1 ? "s" : ""} avant le départ ${icon("plane")}</span>`;
+      el.innerHTML = `<span class="countdown-number">${days}</span><span class="countdown-label">jour${days > 1 ? "s" : ""} avant le départ ${icon("plane")}<br><strong>${fmtDate(TRIP_INFO.startDate)}</strong></span>`;
     } else if (now >= start && now <= end) {
       const currentDay = Math.floor((now - start) / 86400000) + 1;
       el.innerHTML = `<span class="countdown-number">Jour ${currentDay}</span><span class="countdown-label">vous êtes à Zanzibar — bon voyage !</span>`;
@@ -106,33 +137,43 @@
     container.querySelectorAll(".day-notes").forEach((textarea) => {
       const day = textarea.dataset.day;
       textarea.value = store.get("note_day_" + day, "");
-      textarea.addEventListener("input", () => {
+      textarea.addEventListener("blur", () => {
         store.set("note_day_" + day, textarea.value);
+        if (textarea.value) showToast("Note enregistrée");
       });
     });
 
-    initItineraryFilters(container);
+    initJourneyStepper(container);
   }
 
-  function initItineraryFilters(container) {
-    const filtersEl = document.getElementById("itinerary-filters");
-    if (!filtersEl) return;
-    const stages = ["Tous", ...TRIP_INFO.stages.map((s) => s.name)];
-    filtersEl.innerHTML = stages
-      .map((s, i) => `<button class="filter-chip${i === 0 ? " active" : ""}" data-stage="${s}">${s}</button>`)
+  function initJourneyStepper(container) {
+    const stepperEl = document.getElementById("journey-stepper");
+    if (!stepperEl) return;
+    const steps = [{ key: "tous", label: "Tout le voyage", icon: "map" }, ...JOURNEY];
+
+    stepperEl.innerHTML = steps
+      .map(
+        (s) => `
+        <button class="stepper-step" data-phase="${s.key}" type="button">
+          <span class="stepper-dot">${icon(s.icon)}</span>
+          <span class="stepper-label">${s.label}</span>
+        </button>`
+      )
       .join("");
 
-    filtersEl.querySelectorAll(".filter-chip").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        filtersEl.querySelectorAll(".filter-chip").forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-        const stage = chip.dataset.stage;
-        container.querySelectorAll(".day-card").forEach((card) => {
-          const match = stage === "Tous" || card.dataset.stage === stage;
-          card.classList.toggle("filtered-out", !match);
-        });
+    function applyFilter(phase) {
+      stepperEl.querySelectorAll(".stepper-step").forEach((b) => b.classList.toggle("active", b.dataset.phase === phase));
+      container.querySelectorAll(".day-card").forEach((card) => {
+        const match = phase === "tous" || card.dataset.phase === phase;
+        card.classList.toggle("filtered-out", !match);
       });
+    }
+
+    stepperEl.querySelectorAll(".stepper-step").forEach((btn) => {
+      btn.addEventListener("click", () => applyFilter(btn.dataset.phase));
     });
+
+    applyFilter("tous");
   }
 
   function scheduleRow(iconId, label, value) {
@@ -145,7 +186,7 @@
 
   function renderDayCard(d) {
     return `
-    <article class="day-card" data-day="${d.day}" data-stage="${d.stage}">
+    <article class="day-card" data-day="${d.day}" data-stage="${d.stage}" data-phase="${d.phase}">
       <button class="day-header" type="button">
         <span class="day-badge">J${d.day}</span>
         <span class="day-heading">
@@ -156,12 +197,14 @@
         <span class="day-chevron">${icon("chevron")}</span>
       </button>
       <div class="day-body">
+        ${d.budgetNote ? `<p class="day-budget-note">${icon("info")} ${d.budgetNote}</p>` : ""}
         <div class="day-schedule">
           ${scheduleRow("sun", "Matin", d.morning)}
           ${scheduleRow("cloud-sun", "Après-midi", d.afternoon)}
           ${scheduleRow("moon", "Soir", d.evening)}
           ${scheduleRow("utensils", "Repas", d.meal)}
         </div>
+        ${d.mealAlt ? `<p class="meal-alt">${icon("cross")} <strong>Sans poisson/fruits de mer :</strong> ${d.mealAlt}</p>` : ""}
         <label class="day-notes-label">
           Vos notes personnelles (souvenirs, adresses, changements de dernière minute…)
           <textarea class="day-notes" data-day="${d.day}" rows="2" placeholder="Écrivez ici pendant ou après le voyage…"></textarea>
@@ -192,11 +235,12 @@
     }).join("");
 
     tbody.querySelectorAll(".spent-input").forEach((input) => {
-      input.addEventListener("input", () => {
+      input.addEventListener("change", () => {
         const s = store.get("budgetSpent", {});
         s[input.dataset.key] = input.value === "" ? null : Number(input.value);
         store.set("budgetSpent", s);
         recomputeBudget();
+        showToast("Dépense enregistrée");
       });
     });
 
@@ -241,6 +285,11 @@
     const bar = document.getElementById("budget-bar-fill");
     if (bar) bar.style.width = pct + "%";
 
+    const label = document.getElementById("budget-bar-label");
+    if (label) {
+      label.textContent = euro(totalPlanned) + " prévus / " + euro(TRIP_INFO.budgetPerPerson) + " plafond (" + pct + "%)";
+    }
+
     if (anySpent) {
       const pctSpent = Math.min(100, Math.round((totalSpent / TRIP_INFO.budgetPerPerson) * 100));
       const barSpent = document.getElementById("budget-bar-spent");
@@ -265,89 +314,174 @@
   // ---------- Hébergements & vols ----------
   function initStay() {
     const flightsEl = document.getElementById("flights-list");
-    flightsEl.innerHTML = FLIGHTS.map(
-      (f) => `
+    flightsEl.innerHTML = FLIGHTS.map((f) => {
+      const link = `https://www.google.com/travel/flights?q=${encodeURIComponent("vols " + f.airline + " Paris Zanzibar")}`;
+      return `
       <div class="flight-card ${f.recommended ? "recommended" : ""}">
         ${f.recommended ? `<span class="badge">${icon("star")}Recommandé</span>` : ""}
         <h4 class="card-title"><span class="icon-tile c1">${icon("plane")}</span>${f.airline}</h4>
+        <p class="pick-label">${f.pick}</p>
         <p><strong>${f.airport}</strong> → escale <strong>${f.stopover}</strong> → ZNZ</p>
         <p>Durée totale : ${f.duration}</p>
         <p class="price">${f.price} <span>/pers A/R</span></p>
-      </div>`
-    ).join("");
+        <a class="cta-btn primary block" href="${link}" target="_blank" rel="noopener">
+          ${icon("plane")} Comparer les prix
+        </a>
+      </div>`;
+    }).join("");
 
     const accEl = document.getElementById("accommodations-list");
-    accEl.innerHTML = ACCOMMODATIONS.map(
-      (a) => `
-      <div class="acc-card">
-        <h4 class="card-title"><span class="icon-tile c2">${icon("building")}</span>${a.stage} <span class="acc-nights">— ${a.nights} nuits</span></h4>
-        <p class="acc-type">${a.type}</p>
-        <p class="acc-examples">Exemples : ${a.examples}</p>
-        <p class="acc-price">${a.priceRange}</p>
+    accEl.innerHTML = ACCOMMODATIONS.map((stageAcc) => {
+      const options = stageAcc.options
+        .map((opt, oi) => {
+          const tileClass = "c" + ((oi % 3) + 1);
+          return `
+          <div class="acc-option">
+            <div class="acc-banner ${tileClass}">${icon("building")}</div>
+            <div class="acc-option-body">
+              <span class="acc-profile">${opt.profile}</span>
+              <h5>${opt.name}</h5>
+              <p>${opt.description}</p>
+              <a class="cta-btn small" href="${opt.bookingUrl}" target="_blank" rel="noopener">
+                ${icon("chevron")} Voir sur Booking.com
+              </a>
+            </div>
+          </div>`;
+        })
+        .join("");
+      return `
+      <div class="acc-stage-group">
+        <div class="acc-stage-header">
+          <h4>${stageAcc.stage}</h4>
+          <span class="acc-nights">${stageAcc.nights} nuits — ${stageAcc.priceRange}</span>
+        </div>
+        <div class="acc-options-grid">${options}</div>
         <label class="booking-ref-label">
-          N° de réservation / notes
-          <input type="text" class="booking-ref" data-stage="${a.stage}" placeholder="Ex : confirmation Booking.com #..." />
+          N° de réservation / notes pour cette étape
+          <input type="text" class="booking-ref" data-stage="${stageAcc.stage}" placeholder="Ex : confirmation Booking.com #..." />
         </label>
-      </div>`
-    ).join("");
+      </div>`;
+    }).join("");
 
     accEl.querySelectorAll(".booking-ref").forEach((input) => {
       const key = "booking_" + input.dataset.stage;
       input.value = store.get(key, "");
-      input.addEventListener("input", () => store.set(key, input.value));
+      input.addEventListener("blur", () => {
+        store.set(key, input.value);
+        if (input.value) showToast("Référence enregistrée");
+      });
     });
   }
 
   // ---------- Checklist ----------
   function initChecklist() {
     const container = document.getElementById("checklist-container");
-    const checked = store.get("checklist", {});
-
     container.innerHTML = CHECKLIST.map((group, gi) => {
-      const items = group.items
-        .map((item, ii) => {
-          const id = `chk-${gi}-${ii}`;
-          const isChecked = !!checked[id];
-          return `
-          <li>
-            <label class="checklist-item">
-              <input type="checkbox" id="${id}" ${isChecked ? "checked" : ""} />
-              <span>${item}</span>
-            </label>
-          </li>`;
-        })
-        .join("");
       const tileClass = "c" + ((gi % 3) + 1);
       return `
-      <div class="checklist-group">
-        <h3><span class="icon-tile ${tileClass}">${icon(group.icon || "check-circle")}</span>${group.group}<span class="group-progress" data-group="${gi}"></span></h3>
-        <ul>${items}</ul>
-      </div>`;
+      <details class="checklist-group" ${gi === 0 ? "open" : ""}>
+        <summary>
+          <span class="icon-tile ${tileClass}">${icon(group.icon || "check-circle")}</span>
+          <span class="checklist-group-title">${group.group}</span>
+          <span class="group-progress" data-group="${gi}"></span>
+          ${icon("chevron", "chevron-icon")}
+        </summary>
+        <ul class="checklist-items" data-group="${gi}"></ul>
+        <div class="add-item-row">
+          <input type="text" class="add-item-input" data-group="${gi}" placeholder="Ajouter un élément à cette liste…" />
+          <button class="add-item-btn" data-group="${gi}" type="button">${icon("check-circle")}</button>
+        </div>
+      </details>`;
     }).join("");
 
-    container.querySelectorAll('input[type="checkbox"]').forEach((box) => {
-      box.addEventListener("change", () => {
-        const c = store.get("checklist", {});
-        c[box.id] = box.checked;
-        store.set("checklist", c);
-        updateChecklistProgress();
-      });
+    CHECKLIST.forEach((group, gi) => renderChecklistItems(gi));
+
+    container.querySelectorAll(".add-item-btn").forEach((btn) => {
+      const gi = Number(btn.dataset.group);
+      const input = container.querySelector(`.add-item-input[data-group="${gi}"]`);
+      const submit = () => {
+        const text = input.value.trim();
+        if (!text) return;
+        const custom = store.get("checklistCustom", {});
+        custom[gi] = custom[gi] || [];
+        custom[gi].push(text);
+        store.set("checklistCustom", custom);
+        input.value = "";
+        renderChecklistItems(gi);
+        showToast("Élément ajouté");
+      };
+      btn.addEventListener("click", submit);
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } });
     });
 
     updateChecklistProgress();
   }
 
+  function renderChecklistItems(gi) {
+    const group = CHECKLIST[gi];
+    const checked = store.get("checklist", {});
+    const custom = store.get("checklistCustom", {})[gi] || [];
+
+    const staticItems = group.items.map((text, ii) => ({ id: `chk-${gi}-${ii}`, text, custom: false }));
+    const customItems = custom.map((text, ci) => ({ id: `chk-${gi}-custom-${ci}`, text, custom: true, ci }));
+    const all = staticItems.concat(customItems);
+    const unchecked = all.filter((it) => !checked[it.id]);
+    const done = all.filter((it) => checked[it.id]);
+    const ordered = unchecked.concat(done);
+
+    const ul = document.querySelector(`.checklist-items[data-group="${gi}"]`);
+    if (!ul) return;
+    ul.innerHTML = ordered
+      .map(
+        (it) => `
+      <li class="${checked[it.id] ? "is-checked" : ""}">
+        <label class="checklist-item">
+          <input type="checkbox" id="${it.id}" ${checked[it.id] ? "checked" : ""} />
+          <span>${it.text}</span>
+        </label>
+        ${it.custom ? `<button class="item-delete" data-gi="${gi}" data-ci="${it.ci}" type="button" aria-label="Supprimer">✕</button>` : ""}
+      </li>`
+      )
+      .join("");
+
+    ul.querySelectorAll('input[type="checkbox"]').forEach((box) => {
+      box.addEventListener("change", () => {
+        const c = store.get("checklist", {});
+        c[box.id] = box.checked;
+        store.set("checklist", c);
+        renderChecklistItems(gi);
+        updateChecklistProgress();
+      });
+    });
+
+    ul.querySelectorAll(".item-delete").forEach((delBtn) => {
+      delBtn.addEventListener("click", () => {
+        const customStore = store.get("checklistCustom", {});
+        const list = customStore[gi] || [];
+        list.splice(Number(delBtn.dataset.ci), 1);
+        customStore[gi] = list;
+        store.set("checklistCustom", customStore);
+        renderChecklistItems(gi);
+        updateChecklistProgress();
+      });
+    });
+  }
+
   function updateChecklistProgress() {
     let totalAll = 0;
     let doneAll = 0;
+    const checked = store.get("checklist", {});
+    const customStore = store.get("checklistCustom", {});
     CHECKLIST.forEach((group, gi) => {
-      const boxes = document.querySelectorAll(`#checklist-container .checklist-group:nth-child(${gi + 1}) input[type="checkbox"]`);
+      const customCount = (customStore[gi] || []).length;
+      const total = group.items.length + customCount;
       let done = 0;
-      boxes.forEach((b) => { if (b.checked) done++; });
-      totalAll += boxes.length;
+      for (let ii = 0; ii < group.items.length; ii++) if (checked[`chk-${gi}-${ii}`]) done++;
+      for (let ci = 0; ci < customCount; ci++) if (checked[`chk-${gi}-custom-${ci}`]) done++;
+      totalAll += total;
       doneAll += done;
       const label = document.querySelector(`.group-progress[data-group="${gi}"]`);
-      if (label) label.textContent = `(${done}/${boxes.length})`;
+      if (label) label.textContent = `(${done}/${total})`;
     });
     const overall = document.getElementById("checklist-overall");
     if (overall) {
@@ -368,21 +502,35 @@
     ).join("");
   }
 
-  // ---------- Carte ----------
+  // ---------- Carte (Leaflet + OpenStreetMap) ----------
   function initMap() {
-    const svg = document.getElementById("map-svg");
-    if (!svg) return;
+    const el = document.getElementById("leaflet-map");
+    if (!el || typeof L === "undefined") return;
+
     const colors = { airport: "#1a1d1f", stage: "#ff5533", activity: "#0d9c86" };
-    const markers = MAP_POINTS.map((p) => {
+    const map = L.map(el, { scrollWheelZoom: false });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 17
+    }).addTo(map);
+
+    const bounds = [];
+    MAP_POINTS.forEach((p) => {
       const color = colors[p.type] || colors.activity;
-      const r = p.type === "stage" ? 2.2 : 1.5;
-      return `
-        <g class="map-marker" tabindex="0">
-          <circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${color}" stroke="#fff" stroke-width="0.4"></circle>
-          <title>${p.name}</title>
-        </g>`;
-    }).join("");
-    svg.innerHTML += markers;
+      const radius = p.type === "stage" ? 10 : 7;
+      L.circleMarker(p.coords, {
+        radius,
+        color: "#fff",
+        weight: 2,
+        fillColor: color,
+        fillOpacity: 1
+      })
+        .addTo(map)
+        .bindPopup(`<strong>${p.name}</strong>`);
+      bounds.push(p.coords);
+    });
+    map.fitBounds(bounds, { padding: [28, 28] });
+    leafletMapInstance = map;
 
     const legend = document.getElementById("map-legend");
     if (legend) {
@@ -393,6 +541,7 @@
   // ---------- Initialisation ----------
   document.addEventListener("DOMContentLoaded", () => {
     initTabs();
+    initGotoButtons();
     initHome();
     initItinerary();
     initBudget();
