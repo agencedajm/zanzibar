@@ -46,6 +46,7 @@
 <symbol id="i-building" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><rect x="7" y="6.5" width="2.2" height="2.2"/><rect x="14.8" y="6.5" width="2.2" height="2.2"/><rect x="7" y="11.5" width="2.2" height="2.2"/><rect x="14.8" y="11.5" width="2.2" height="2.2"/><rect x="10" y="16.5" width="4" height="4.5"/></symbol>
 <symbol id="i-bag" viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="13" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><line x1="5" y1="13" x2="19" y2="13"/></symbol>
 <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+<symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.2 8.8l-2.1 4.3-4.3 2.1 2.1-4.3z"/></symbol>
 </defs>
 </svg>
 
@@ -62,16 +63,19 @@
       </div>
     </div>
   </div>
-  <nav class="tabs">
-    <button class="tab-btn" data-tab="accueil"><svg class="icon"><use href="#i-home"/></svg><span class="tab-label">Accueil</span></button>
-    <button class="tab-btn" data-tab="itineraire"><svg class="icon"><use href="#i-calendar"/></svg><span class="tab-label">Itinéraire</span></button>
-    <button class="tab-btn" data-tab="budget"><svg class="icon"><use href="#i-wallet"/></svg><span class="tab-label">Budget</span></button>
-    <button class="tab-btn" data-tab="sejour"><svg class="icon"><use href="#i-plane"/></svg><span class="tab-label">Vols &amp; hôtels</span></button>
-    <button class="tab-btn" data-tab="checklist"><svg class="icon"><use href="#i-check-circle"/></svg><span class="tab-label">Checklist</span></button>
-    <button class="tab-btn" data-tab="infos"><svg class="icon"><use href="#i-info"/></svg><span class="tab-label">Infos</span></button>
-    <button class="tab-btn" data-tab="carte"><svg class="icon"><use href="#i-map"/></svg><span class="tab-label">Carte</span></button>
-  </nav>
 </header>
+
+<!-- La barre d'onglets est un élément indépendant du header (pas imbriquée
+     dedans) pour éviter tout bug d'affichage fixed/sticky sur mobile -->
+<nav class="tabs">
+  <button class="tab-btn" data-tab="accueil"><svg class="icon"><use href="#i-home"/></svg><span class="tab-label">Accueil</span></button>
+  <button class="tab-btn" data-tab="itineraire"><svg class="icon"><use href="#i-calendar"/></svg><span class="tab-label">Itinéraire</span></button>
+  <button class="tab-btn" data-tab="activites"><svg class="icon"><use href="#i-compass"/></svg><span class="tab-label">Activités</span></button>
+  <button class="tab-btn" data-tab="sejour"><svg class="icon"><use href="#i-plane"/></svg><span class="tab-label">Vols &amp; hôtels</span></button>
+  <button class="tab-btn" data-tab="budget"><svg class="icon"><use href="#i-wallet"/></svg><span class="tab-label">Budget</span></button>
+  <button class="tab-btn" data-tab="prep"><svg class="icon"><use href="#i-check-circle"/></svg><span class="tab-label">Préparation</span></button>
+  <button class="tab-btn" data-tab="carte"><svg class="icon"><use href="#i-map"/></svg><span class="tab-label">Carte</span></button>
+</nav>
 
 <main>
 
@@ -108,7 +112,7 @@
         <button class="cta-btn" data-goto="itineraire">
           <svg class="icon"><use href="#i-calendar"/></svg> Voir l'itinéraire détaillé
         </button>
-        <button class="cta-btn" data-goto="checklist">
+        <button class="cta-btn" data-goto="prep" data-subgoto="checklist">
           <svg class="icon"><use href="#i-check-circle"/></svg> Préparer mes documents
         </button>
       </div>
@@ -136,29 +140,27 @@
       <span class="legend-spent">Dépensé réel</span>
     </div>
     <p id="budget-margin"></p>
-    <table class="budget-table">
-      <thead>
-        <tr>
-          <th>Poste</th>
-          <th class="num">Prévu</th>
-          <th class="num">Dépensé réel</th>
-          <th class="num">Écart</th>
-        </tr>
-      </thead>
-      <tbody id="budget-tbody"></tbody>
-      <tfoot>
-        <tr>
-          <td>Total</td>
-          <td class="num" id="budget-total-planned"></td>
-          <td class="num" id="budget-total-spent"></td>
-          <td class="num">Plafond : <span id="budget-ceiling"></span></td>
-        </tr>
-      </tfoot>
-    </table>
+    <div class="budget-list" id="budget-list"></div>
+    <div class="budget-total-row">
+      <span>Total</span>
+      <span class="budget-total-amounts">
+        <strong id="budget-total-planned"></strong>
+        <span id="budget-total-spent"></span>
+      </span>
+      <span class="budget-ceiling-label">Plafond : <span id="budget-ceiling"></span></span>
+    </div>
     <div class="budget-actions">
       <button class="ghost-btn" id="budget-reset">Réinitialiser les dépenses saisies</button>
     </div>
     <p id="budget-couple-total"></p>
+  </section>
+
+  <!-- ACTIVITÉS -->
+  <section id="activites" class="tab-panel">
+    <h2>Activités &amp; excursions</h2>
+    <p class="panel-intro">Triez par zone, comparez et réservez.</p>
+    <div class="zone-chips" id="activity-filters"></div>
+    <div class="cards-grid" id="activities-list"></div>
   </section>
 
   <!-- VOLS & HEBERGEMENTS -->
@@ -175,17 +177,21 @@
     <div id="accommodations-list"></div>
   </section>
 
-  <!-- CHECKLIST -->
-  <section id="checklist" class="tab-panel">
-    <h2>Checklist de préparation</h2>
-    <div id="checklist-overall"></div>
-    <div id="checklist-container"></div>
-  </section>
+  <!-- CHECKLIST & INFOS (un seul onglet, deux sous-sections) -->
+  <section id="prep" class="tab-panel">
+    <div class="subtab-switch" id="prep-subtabs">
+      <button class="subtab-btn active" data-subtab="checklist">Checklist de préparation</button>
+      <button class="subtab-btn" data-subtab="infos">Infos pratiques</button>
+    </div>
 
-  <!-- INFOS PRATIQUES -->
-  <section id="infos" class="tab-panel">
-    <h2>Infos pratiques</h2>
-    <div id="practical-list"></div>
+    <div class="subtab-panel active" id="prep-checklist">
+      <div id="checklist-overall"></div>
+      <div id="checklist-container"></div>
+    </div>
+
+    <div class="subtab-panel" id="prep-infos">
+      <div id="practical-list"></div>
+    </div>
   </section>
 
   <!-- CARTE -->
