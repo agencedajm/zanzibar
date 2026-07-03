@@ -58,7 +58,7 @@
     if (tabId === "carte" && leafletMapInstance) {
       setTimeout(() => leafletMapInstance.invalidateSize(), 80);
     }
-    if (subTabId) activateSubtab(subTabId);
+    if (subTabId) activateSubtab(tabId, subTabId);
   }
 
   function initTabs() {
@@ -74,15 +74,19 @@
     });
   }
 
-  // ---------- Sous-onglets (ex: Checklist / Infos dans le même onglet) ----------
-  function activateSubtab(subTabId) {
-    document.querySelectorAll(".subtab-btn").forEach((b) => b.classList.toggle("active", b.dataset.subtab === subTabId));
-    document.querySelectorAll(".subtab-panel").forEach((p) => p.classList.toggle("active", p.id === "prep-" + subTabId));
+  // ---------- Sous-onglets génériques (un onglet principal peut contenir
+  // plusieurs sous-sections, ex: Itinéraire/Activités, Budget/Réservations) ----------
+  function activateSubtab(group, subTabId) {
+    document.querySelectorAll(`.subtab-switch[data-group="${group}"] .subtab-btn`).forEach((b) => b.classList.toggle("active", b.dataset.subtab === subTabId));
+    document.querySelectorAll(`.subtab-panel[data-group="${group}"]`).forEach((p) => p.classList.toggle("active", p.dataset.subtab === subTabId));
   }
 
   function initSubtabs() {
-    document.querySelectorAll(".subtab-btn").forEach((b) => {
-      b.addEventListener("click", () => activateSubtab(b.dataset.subtab));
+    document.querySelectorAll(".subtab-switch").forEach((switchEl) => {
+      const group = switchEl.dataset.group;
+      switchEl.querySelectorAll(".subtab-btn").forEach((b) => {
+        b.addEventListener("click", () => activateSubtab(group, b.dataset.subtab));
+      });
     });
   }
 
@@ -335,7 +339,7 @@
     });
   }
 
-  // ---------- Activités & excursions ----------
+  // ---------- Activités & excursions (groupées par région puis par type) ----------
   function initActivities() {
     const listEl = document.getElementById("activities-list");
     const filtersEl = document.getElementById("activity-filters");
@@ -344,32 +348,51 @@
     function renderCard(a, i) {
       const tileClass = "c" + ((i % 3) + 1);
       return `
-      <div class="flight-card activity-card" data-zone="${a.zone}">
+      <div class="flight-card activity-card ${a.notRecommended ? "not-recommended" : ""}">
+        ${a.notRecommended ? `<span class="badge badge-muted">${icon("cross")}Non recommandé</span>` : ""}
         <h4 class="card-title"><span class="icon-tile ${tileClass}">${icon(a.icon)}</span>${a.name}</h4>
-        <p class="pick-label">${a.zone}</p>
         <p>${a.description}</p>
         <p>Durée : ${a.duration}</p>
         <p class="price">${a.price}</p>
-        <a class="cta-btn primary block" href="${a.ctaUrl}" target="_blank" rel="noopener">
-          ${icon("compass")} Comparer &amp; réserver
+        <a class="cta-btn ${a.notRecommended ? "" : "primary"} block" href="${a.ctaUrl}" target="_blank" rel="noopener">
+          ${icon("compass")} ${a.notRecommended ? "En savoir plus" : "Comparer & réserver"}
         </a>
       </div>`;
     }
 
-    listEl.innerHTML = ACTIVITIES.map(renderCard).join("");
+    listEl.innerHTML = REGIONS.map((region) => {
+      const inRegion = ACTIVITIES.filter((a) => a.region === region.key);
+      if (!inRegion.length) return "";
+      const types = [...new Set(inRegion.map((a) => a.type))];
+      const typeBlocks = types
+        .map((type) => `
+          <h4 class="activity-type-heading">${type}</h4>
+          <div class="cards-grid">${inRegion.filter((a) => a.type === type).map(renderCard).join("")}</div>
+        `)
+        .join("");
+      return `
+      <section class="activity-region" data-region="${region.key}">
+        <h3 class="region-heading">${region.label}</h3>
+        <p class="panel-intro">${region.note}</p>
+        ${typeBlocks}
+      </section>`;
+    }).join("");
 
-    const zones = ["Toutes", ...new Set(ACTIVITIES.map((a) => a.zone))];
-    filtersEl.innerHTML = zones
-      .map((z, i) => `<button class="zone-chip${i === 0 ? " active" : ""}" data-zone="${z}" type="button">${z}</button>`)
+    const regions = ["Toutes", ...REGIONS.map((r) => r.key)];
+    filtersEl.innerHTML = regions
+      .map((r, i) => {
+        const label = i === 0 ? "Toutes" : REGIONS.find((x) => x.key === r).label;
+        return `<button class="zone-chip${i === 0 ? " active" : ""}" data-region="${r}" type="button">${label}</button>`;
+      })
       .join("");
 
     filtersEl.querySelectorAll(".zone-chip").forEach((chip) => {
       chip.addEventListener("click", () => {
         filtersEl.querySelectorAll(".zone-chip").forEach((c) => c.classList.remove("active"));
         chip.classList.add("active");
-        const zone = chip.dataset.zone;
-        listEl.querySelectorAll(".activity-card").forEach((card) => {
-          card.classList.toggle("filtered-out", !(zone === "Toutes" || card.dataset.zone === zone));
+        const region = chip.dataset.region;
+        listEl.querySelectorAll(".activity-region").forEach((section) => {
+          section.classList.toggle("filtered-out", !(region === "Toutes" || section.dataset.region === region));
         });
       });
     });
