@@ -70,8 +70,6 @@
 <nav class="tabs">
   <button class="tab-btn" data-tab="accueil"><svg class="icon"><use href="#i-home"/></svg><span class="tab-label">Accueil</span></button>
   <button class="tab-btn" data-tab="itineraire"><svg class="icon"><use href="#i-calendar"/></svg><span class="tab-label">Itinéraire</span></button>
-  <button class="tab-btn" data-tab="activites"><svg class="icon"><use href="#i-compass"/></svg><span class="tab-label">Activités</span></button>
-  <button class="tab-btn" data-tab="sejour"><svg class="icon"><use href="#i-plane"/></svg><span class="tab-label">Vols &amp; hôtels</span></button>
   <button class="tab-btn" data-tab="budget"><svg class="icon"><use href="#i-wallet"/></svg><span class="tab-label">Budget</span></button>
   <button class="tab-btn" data-tab="prep"><svg class="icon"><use href="#i-check-circle"/></svg><span class="tab-label">Préparation</span></button>
   <button class="tab-btn" data-tab="carte"><svg class="icon"><use href="#i-map"/></svg><span class="tab-label">Carte</span></button>
@@ -106,10 +104,10 @@
       <h3 class="section-label">Pourquoi mi-septembre ?</h3>
       <p class="why-box" id="home-why"></p>
       <div class="cta-row">
-        <button class="cta-btn primary" data-goto="sejour">
+        <button class="cta-btn primary" data-goto="budget" data-subgoto="reservations">
           <svg class="icon"><use href="#i-plane"/></svg> Voir les vols &amp; réserver
         </button>
-        <button class="cta-btn" data-goto="itineraire">
+        <button class="cta-btn" data-goto="itineraire" data-subgoto="jours">
           <svg class="icon"><use href="#i-calendar"/></svg> Voir l'itinéraire détaillé
         </button>
         <button class="cta-btn" data-goto="prep" data-subgoto="checklist">
@@ -119,77 +117,88 @@
     </div>
   </section>
 
-  <!-- ITINERAIRE -->
+  <!-- ITINERAIRE + ACTIVITÉS (un seul onglet, deux sous-sections) -->
   <section id="itineraire" class="tab-panel">
-    <h2>Itinéraire jour par jour</h2>
-    <p class="panel-intro">Choisissez un moment du voyage ci-dessous pour voir uniquement ces jours-là. Touchez un jour pour dérouler le détail.</p>
-    <div class="journey-stepper" id="journey-stepper"></div>
-    <div id="itinerary-list"></div>
+    <h2>Itinéraire &amp; activités</h2>
+    <div class="subtab-switch" data-group="itineraire">
+      <button class="subtab-btn active" data-subtab="jours">Jour par jour</button>
+      <button class="subtab-btn" data-subtab="activites">Activités</button>
+    </div>
+
+    <div class="subtab-panel active" data-group="itineraire" data-subtab="jours">
+      <p class="panel-intro">Choisissez un moment du voyage ci-dessous pour voir uniquement ces jours-là. Touchez un jour pour dérouler le détail.</p>
+      <div class="journey-stepper" id="journey-stepper"></div>
+      <div id="itinerary-list"></div>
+    </div>
+
+    <div class="subtab-panel" data-group="itineraire" data-subtab="activites">
+      <p class="panel-intro">Triez par zone, comparez et réservez.</p>
+      <div class="zone-chips" id="activity-filters"></div>
+      <div class="cards-grid" id="activities-list"></div>
+    </div>
   </section>
 
-  <!-- BUDGET -->
+  <!-- BUDGET + VOLS & HEBERGEMENTS (un seul onglet, deux sous-sections) -->
   <section id="budget" class="tab-panel">
-    <h2>Budget par personne</h2>
-    <div class="budget-bar-wrap">
-      <div class="budget-bar-fill" id="budget-bar-fill"></div>
-      <div class="budget-bar-spent" id="budget-bar-spent"></div>
-      <span class="budget-bar-label" id="budget-bar-label"></span>
+    <h2>Budget &amp; réservations</h2>
+    <div class="subtab-switch" data-group="budget">
+      <button class="subtab-btn active" data-subtab="budget">Budget</button>
+      <button class="subtab-btn" data-subtab="reservations">Vols &amp; hôtels</button>
     </div>
-    <div class="budget-legend">
-      <span class="legend-planned">Prévisionnel</span>
-      <span class="legend-spent">Dépensé réel</span>
-    </div>
-    <p id="budget-margin"></p>
-    <div class="budget-list" id="budget-list"></div>
-    <div class="budget-total-row">
-      <span>Total</span>
-      <span class="budget-total-amounts">
-        <strong id="budget-total-planned"></strong>
-        <span id="budget-total-spent"></span>
-      </span>
-      <span class="budget-ceiling-label">Plafond : <span id="budget-ceiling"></span></span>
-    </div>
-    <div class="budget-actions">
-      <button class="ghost-btn" id="budget-reset">Réinitialiser les dépenses saisies</button>
-    </div>
-    <p id="budget-couple-total"></p>
-  </section>
 
-  <!-- ACTIVITÉS -->
-  <section id="activites" class="tab-panel">
-    <h2>Activités &amp; excursions</h2>
-    <p class="panel-intro">Triez par zone, comparez et réservez.</p>
-    <div class="zone-chips" id="activity-filters"></div>
-    <div class="cards-grid" id="activities-list"></div>
-  </section>
-
-  <!-- VOLS & HEBERGEMENTS -->
-  <section id="sejour" class="tab-panel">
-    <h2>Vols Paris → Zanzibar</h2>
-    <p class="panel-intro">Prix indicatifs — comparez et réservez sur les sites de recherche de vols.</p>
-    <div class="cards-grid" id="flights-list"></div>
-
-    <div class="section-header-row">
-      <h2>Hébergements par étape</h2>
-      <button class="link-btn" data-goto="carte"><svg class="icon"><use href="#i-map"/></svg> Voir sur la carte</button>
+    <div class="subtab-panel active" data-group="budget" data-subtab="budget">
+      <div class="budget-bar-wrap">
+        <div class="budget-bar-fill" id="budget-bar-fill"></div>
+        <div class="budget-bar-spent" id="budget-bar-spent"></div>
+        <span class="budget-bar-label" id="budget-bar-label"></span>
+      </div>
+      <div class="budget-legend">
+        <span class="legend-planned">Prévisionnel</span>
+        <span class="legend-spent">Dépensé réel</span>
+      </div>
+      <p id="budget-margin"></p>
+      <div class="budget-list" id="budget-list"></div>
+      <div class="budget-total-row">
+        <span>Total</span>
+        <span class="budget-total-amounts">
+          <strong id="budget-total-planned"></strong>
+          <span id="budget-total-spent"></span>
+        </span>
+        <span class="budget-ceiling-label">Plafond : <span id="budget-ceiling"></span></span>
+      </div>
+      <div class="budget-actions">
+        <button class="ghost-btn" id="budget-reset">Réinitialiser les dépenses saisies</button>
+      </div>
+      <p id="budget-couple-total"></p>
     </div>
-    <p class="panel-intro">3 profils par étape : le choix guide de voyage, une adresse locale, une option plus aventure.</p>
-    <div id="accommodations-list"></div>
+
+    <div class="subtab-panel" data-group="budget" data-subtab="reservations">
+      <h3 class="section-label">Vols Paris → Zanzibar</h3>
+      <p class="panel-intro">Prix indicatifs — comparez et réservez sur les sites de recherche de vols.</p>
+      <div class="cards-grid" id="flights-list"></div>
+
+      <div class="section-header-row">
+        <h3 class="section-label">Hébergements par étape</h3>
+        <button class="link-btn" data-goto="carte"><svg class="icon"><use href="#i-map"/></svg> Voir sur la carte</button>
+      </div>
+      <p class="panel-intro">3 profils par étape : le choix guide de voyage, une adresse locale, une option plus aventure.</p>
+      <div id="accommodations-list"></div>
+    </div>
   </section>
 
   <!-- CHECKLIST & INFOS (un seul onglet, deux sous-sections) -->
   <section id="prep" class="tab-panel">
-    <div class="subtab-switch" id="prep-subtabs">
+    <div class="subtab-switch" data-group="prep">
       <button class="subtab-btn active" data-subtab="checklist">Checklist de préparation</button>
       <button class="subtab-btn" data-subtab="infos">Infos pratiques</button>
     </div>
 
-    <div class="subtab-panel active" id="prep-checklist">
+    <div class="subtab-panel active" data-group="prep" data-subtab="checklist">
       <div id="checklist-overall"></div>
       <div id="checklist-container"></div>
     </div>
 
-    <div class="subtab-panel" id="prep-infos">
+    <div class="subtab-panel" data-group="prep" data-subtab="infos">
       <div id="practical-list"></div>
     </div>
   </section>
