@@ -347,6 +347,7 @@
 
     function renderCard(a, i) {
       const tileClass = "c" + ((i % 3) + 1);
+      const label = a.ctaLabel || (a.notRecommended ? "En savoir plus" : "Site officiel");
       return `
       <div class="flight-card activity-card ${a.notRecommended ? "not-recommended" : ""}">
         ${a.notRecommended ? `<span class="badge badge-muted">${icon("cross")}Non recommandé</span>` : ""}
@@ -354,8 +355,9 @@
         <p>${a.description}</p>
         <p>Durée : ${a.duration}</p>
         <p class="price">${a.price}</p>
+        ${a.bookingNote ? `<p class="booking-note">${icon("info")} ${a.bookingNote}</p>` : ""}
         <a class="cta-btn ${a.notRecommended ? "" : "primary"} block" href="${a.ctaUrl}" target="_blank" rel="noopener">
-          ${icon("compass")} ${a.notRecommended ? "En savoir plus" : "Comparer & réserver"}
+          ${icon("compass")} ${label}
         </a>
       </div>`;
     }
