@@ -459,7 +459,9 @@ const ACTIVITIES = [
     description: "Visite d'une plantation d'épices, dégustation, explications sur girofle/vanille/poivre. Stone Town.",
     duration: "~3h",
     price: "15 – 25 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=zanzibar+spice+tour"
+    ctaUrl: "https://zanzibartourism.go.tz/",
+    ctaLabel: "Infos officielles (Zanzibar Tourism)",
+    bookingNote: "Pas de billet en ligne officiel : se réserve sur place auprès d'un guide agréé ou de votre hôtel."
   },
   {
     name: "Visite guidée de Stone Town",
@@ -469,7 +471,8 @@ const ACTIVITIES = [
     description: "Vieille ville swahilie classée UNESCO, marché de Darajani, ancien marché aux esclaves.",
     duration: "~3h",
     price: "20 – 30 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=stone+town+walking+tour"
+    ctaUrl: "https://whc.unesco.org/en/list/173/",
+    ctaLabel: "Fiche officielle UNESCO"
   },
   {
     name: "Cours de cuisine swahili",
@@ -479,7 +482,9 @@ const ACTIVITIES = [
     description: "Marché local + préparation de plats swahili (pilau, curry, chapati). Stone Town ou Nungwi.",
     duration: "3-4h",
     price: "30 – 50 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=zanzibar+cooking+class"
+    ctaUrl: "https://zanzibartourism.go.tz/",
+    ctaLabel: "Infos officielles (Zanzibar Tourism)",
+    bookingNote: "Pas de billet en ligne officiel : se réserve sur place auprès d'un guide agréé ou de votre hôtel."
   },
   // --- ZANZIBAR : Nature ---
   {
@@ -490,7 +495,9 @@ const ACTIVITIES = [
     description: "Bateau depuis Stone Town, tortues géantes centenaires, snorkeling léger sur le trajet.",
     duration: "Demi-journée",
     price: "35 – 50 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=prison+island+zanzibar"
+    ctaUrl: "https://zanzibartourism.go.tz/",
+    ctaLabel: "Infos officielles (Zanzibar Tourism)",
+    bookingNote: "Pas de billet en ligne officiel : bateau et entrée se paient sur place."
   },
   {
     name: "Jozani Forest",
@@ -500,7 +507,9 @@ const ACTIVITIES = [
     description: "Seule forêt protégée de Zanzibar : singes colobes rouges endémiques, mangrove sur ponton en bois.",
     duration: "~2h30",
     price: "20 – 30 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=jozani+forest+zanzibar"
+    ctaUrl: "https://zanzibartourism.go.tz/",
+    ctaLabel: "Infos officielles (Zanzibar Tourism)",
+    bookingNote: "Parc national : entrée payée sur place au guichet officiel."
   },
   {
     name: "Sortie dauphins à Kizimkazi",
@@ -510,7 +519,9 @@ const ACTIVITIES = [
     description: "Observation (et parfois baignade encadrée) avec les dauphins au large de Kizimkazi, au sud de l'île.",
     duration: "Demi-journée",
     price: "35 – 45 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=kizimkazi+dolphin+tour"
+    ctaUrl: "https://zanzibartourism.go.tz/",
+    ctaLabel: "Infos officielles (Zanzibar Tourism)",
+    bookingNote: "Pas de billet en ligne officiel : se réserve sur place via la coopérative de bateaux locale."
   },
   {
     name: "Mnarani Aquarium (bassin des tortues)",
@@ -520,7 +531,9 @@ const ACTIVITIES = [
     description: "Petit bassin de conservation de tortues marines, à pied depuis Nungwi/Kendwa.",
     duration: "~1h30",
     price: "~9 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=mnarani+turtles+zanzibar"
+    ctaUrl: "https://zanzibartourism.go.tz/",
+    ctaLabel: "Infos officielles (Zanzibar Tourism)",
+    bookingNote: "Entrée payée sur place, pas de billetterie en ligne officielle."
   },
   {
     name: "Chumbe Island Coral Park",
@@ -530,7 +543,8 @@ const ACTIVITIES = [
     description: "Une des plus anciennes réserves marines privées d'Afrique (depuis 1994) : récif jamais pêché, tortues vertes, crabes de cocotier géants. Accès limité (~12 visiteurs/jour), à réserver bien à l'avance. Fortement recommandé en complément de Safari Blue.",
     duration: "Journée (ou nuit sur place)",
     price: "~85 – 108 €/pers (journée) · ~260 €/nuit tout compris",
-    ctaUrl: "https://chumbeisland.com/"
+    ctaUrl: "https://chumbeisland.com/",
+    ctaLabel: "Réserver (site officiel)"
   },
   // --- ZANZIBAR : Plage & Snorkeling ---
   {
@@ -541,7 +555,8 @@ const ACTIVITIES = [
     description: "Excursion bateau dhow journée complète : mangroves, banc de sable, snorkeling, BBQ fruits de mer/homard (option viande sur demande).",
     duration: "Journée complète",
     price: "70 – 85 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=safari+blue+zanzibar"
+    ctaUrl: "https://safariblue.net/",
+    ctaLabel: "Réserver (site officiel)"
   },
   {
     name: "Snorkeling Mnemba Island",
@@ -551,7 +566,9 @@ const ACTIVITIES = [
     description: "Le meilleur spot de snorkeling de Zanzibar, eaux cristallines, tortues et poissons tropicaux.",
     duration: "Demi-journée",
     price: "55 – 70 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=mnemba+island+snorkeling"
+    ctaUrl: "https://zanzibartourism.go.tz/",
+    ctaLabel: "Infos officielles (Zanzibar Tourism)",
+    bookingNote: "Concession privée : se réserve sur place via votre hôtel ou un opérateur de plongée local."
   },
   {
     name: "Nakupenda Sandbank",
@@ -561,7 +578,9 @@ const ACTIVITIES = [
     description: "Banc de sable au large de Stone Town, snorkeling + BBQ. Redondant si Prison Island est déjà prévu.",
     duration: "Demi-journée",
     price: "33 – 85 €/pers",
-    ctaUrl: "https://www.getyourguide.com/s/?q=nakupenda+sandbank"
+    ctaUrl: "https://zanzibartourism.go.tz/",
+    ctaLabel: "Infos officielles (Zanzibar Tourism)",
+    bookingNote: "Pas de billet en ligne officiel : se réserve sur place via un bateau local."
   },
 
   // --- TANZANIE CONTINENTALE : Safari ---
@@ -573,7 +592,9 @@ const ACTIVITIES = [
     description: "Format court : cratère du Ngorongoro (30 000+ animaux résidents) + Tarangire (grandes populations d'éléphants). Faune dense toute l'année, pas besoin de viser la migration. Vol ZNZ↔Kilimanjaro (JRO) recommandé (~1h05, moins cher et plus fréquent qu'Arusha). Tout compris : 4x4+guide, lodges, entrées parcs.",
     duration: "3 jours / 2 nuits",
     price: "900 – 1 350 €/pers (vol domestique inclus)",
-    ctaUrl: "https://www.safaribookings.com/tanzania"
+    ctaUrl: "https://www.ncaa.go.tz/",
+    ctaLabel: "NCAA — autorité officielle (Ngorongoro)",
+    bookingNote: "Tarangire dépend de TANAPA (tanzaniaparks.go.tz) ; en pratique, un safari se réserve via une agence locale agréée qui règle les droits d'entrée directement aux autorités."
   },
   {
     name: "Safari complet avec Serengeti",
@@ -583,7 +604,8 @@ const ACTIVITIES = [
     description: "Ajoute les grandes plaines du Serengeti et une chance (non garantie) de croiser la migration — en septembre elle est plutôt au nord, côté Kenya. Rythme de route plus chargé, budget nettement plus élevé.",
     duration: "4-5 jours / 3-4 nuits",
     price: "1 800 – 3 200 €/pers",
-    ctaUrl: "https://www.safaribookings.com/tanzania/serengeti"
+    ctaUrl: "https://www.tanzaniaparks.go.tz/",
+    ctaLabel: "TANAPA — autorité officielle (Serengeti)"
   },
 
   // --- PEMBA : Plongée ---
@@ -595,7 +617,8 @@ const ACTIVITIES = [
     description: "Murs de corail parmi les plus sains de l'océan Indien, Misali Island Marine Conservation Area (350+ espèces de poissons). Vol direct ZNZ↔Pemba ~25-30 min (préférable à Mafia, qui impose une correspondance par Dar es Salaam). Mantas non garanties en septembre, mais qualité des fonds excellente indépendamment de la mégafaune. Forfait dégressif : 80$/plongée → ~44$ à partir de 10 plongées.",
     duration: "2-3 jours",
     price: "800 – 1 250 €/pers (vol + hébergement + plongées)",
-    ctaUrl: "https://blog.padi.com/tanzania-diving/"
+    ctaUrl: "https://www.afrodivers.com/",
+    ctaLabel: "Réserver (centre PADI officiel, Pemba)"
   },
 
   // --- AUTRES PAYS : non recommandé, pour référence ---
@@ -608,7 +631,8 @@ const ACTIVITIES = [
     description: "Safari alternatif au Kenya. Largement redondant avec le Serengeti/Ngorongoro (même écosystème, frontière non clôturée). Nécessite un visa kenyan séparé en plus du tanzanien (~80$/pers de frais supplémentaires) et +1 à 1,5 jour de logistique pure.",
     duration: "3-4 jours",
     price: "+700 – 1 000 €/couple vs safari tanzanien",
-    ctaUrl: "https://www.safaribookings.com/kenya/masai-mara"
+    ctaUrl: "https://www.maratriangle.org/",
+    ctaLabel: "Infos officielles (Mara Conservancy)"
   },
   {
     name: "Diani Beach / Mombasa",
@@ -619,7 +643,8 @@ const ACTIVITIES = [
     description: "Plages tropicales très similaires à celles déjà prévues à Zanzibar (13 nuits de plage au programme) — peu de valeur ajoutée pour la logistique et le coût que ça représente.",
     duration: "-",
     price: "Non recommandé",
-    ctaUrl: "https://www.viator.com/Diani-Beach-attractions/d4585-ttd"
+    ctaUrl: "https://magicalkenya.com/",
+    ctaLabel: "Infos officielles (Kenya Tourism Board)"
   },
   {
     name: "Bazaruto / Quirimbas (Mozambique)",
@@ -630,7 +655,8 @@ const ACTIVITIES = [
     description: "Plongée réputée mais aucune liaison directe (transit obligatoire par Johannesburg ou Dar es Salaam), visa séparé, et pas clairement supérieure à Pemba déjà accessible depuis Zanzibar.",
     duration: "3-4 jours",
     price: "3 500 – 6 000 €/couple — non recommandé",
-    ctaUrl: "https://www.originaldiving.com/africa/mozambique/"
+    ctaUrl: "https://www.anac.gov.mz/en/parques/bazaruto/",
+    ctaLabel: "Infos officielles (ANAC Mozambique)"
   }
 ];
 
