@@ -797,6 +797,30 @@ button.ghost-btn:hover { background: var(--primary-dark); }
   gap: 0.3rem;
 }
 .flight-card .badge .icon { width: 0.7rem; height: 0.7rem; color: var(--star); fill: var(--star); }
+.badge-muted { background: var(--muted) !important; }
+.badge-muted .icon { color: #fff !important; fill: none !important; }
+
+/* ---------- Activités : sections par région puis par type ---------- */
+.activity-region { margin-bottom: 1.6rem; }
+.activity-region.filtered-out { display: none; }
+.region-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 1.1rem;
+  margin: 0 0 0.3rem;
+}
+.activity-type-heading {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary-dark);
+  margin: 1rem 0 0.6rem;
+}
+.activity-card.not-recommended { opacity: 0.7; }
+.activity-card.not-recommended .price { color: var(--muted); }
 .card-title {
   display: flex;
   align-items: center;
